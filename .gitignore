@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Resultados y salidas generadas
+resultados_*/
+results/*
+!results/.gitkeep
+diagnostico_admisiones/
+diagnostico_cirujanos_opcionales/
+*.log
+*.lp
+*.ilp
+*.mps
+*.sol
+
+# Soluciones generadas
+solucion_*.json
+mejor_solucion*.json
+estadisticas_*.json
+resumen_*.json
+resumen_*.csv
+validator_*.json
+feedback_*.json
+
+# Datos e instancias, salvo marcador
+data/*
+!data/.gitkeep
+instancias/
+instances/
+
+# Ejecutables y binarios
+*.exe
+*.dll
+
+# Sistema
+.DS_Store
+Thumbs.db
