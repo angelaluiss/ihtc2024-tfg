@@ -1,38 +1,53 @@
-# Cachés y temporales de Python
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
+*.pyd
+.venv/
+venv/
+env/
 
-# Artículos / bibliografía (no forman parte del código; pesan mucho)
-artículos/
+# Jupyter
+.ipynb_checkpoints/
 
-# Ficheros de Gurobi / depuración
-*.ilp
-*.lp
-*.log
-*.mps
-gurobi.log
-
-# Carpetas de resultados de desarrollo / en curso (se regeneran).
-# Se conservan solo las del run principal (resultados_rapido*) y el informe.
-resultados_competicion_ihtc/
-resultados/
-resultados_benchmark/
-resultados_competicion/
-resultados_competicion_benchmark/
+# Resultados y salidas generadas (se regeneran con los scripts)
+resultados_*/
+results/*
+!results/.gitkeep
 diagnostico_admisiones/
 diagnostico_cirujanos_opcionales/
+*.log
+*.lp
+*.ilp
+*.mps
+*.sol
 
-# Backups y ficheros temporales de edición
+# Soluciones y estadísticas generadas
+solucion_*.json
+mejor_solucion*.json
+estadisticas_*.json
+resumen_*.json
+resumen_*.csv
+validator_*.json
+feedback_*.json
+
+# Datos e instancias (públicas, disponibles en la web del IHTC 2024)
+data/*
+!data/.gitkeep
+instancias/
+instances/
+
+# Artículos / bibliografía (pesados, no son código)
+artículos/
+
+# Ejecutables y binarios
+*.exe
+*.dll
+
+# Backups y temporales de edición
 *.bak
 *.bak_pre_fix
 *_backup.py
-
-# Soluciones sueltas de desarrollo (se regeneran)
-solucion_fase*.json
-solucion_final*.json
-feedback_fase2.json
-estadisticas_fase*.json
 
 # Sistema
 .DS_Store
