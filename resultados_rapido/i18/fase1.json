@@ -1,0 +1,887 @@
+{
+    "patients": [
+        {
+            "id": "p001",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p002",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p003",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p004",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p007",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p008",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p009",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p014",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p016",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p018",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p019",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p020",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p021",
+            "admission_day": 17,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p023",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p024",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p025",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p026",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p027",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p028",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p029",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p030",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p031",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p032",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p034",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p035",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p038",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p039",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p040",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p043",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p044",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p045",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p046",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p049",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p050",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p051",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p052",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p057",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p058",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p060",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p062",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p064",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p065",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p068",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p071",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p072",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p074",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p075",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p077",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p081",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p082",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p083",
+            "admission_day": 17,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p085",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p088",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p089",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p095",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p097",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p100",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p105",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p106",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p111",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p115",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p119",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p122",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p123",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p124",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p125",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p126",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p128",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p130",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p132",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p133",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p135",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p136",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p137",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p138",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p139",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p140",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p141",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p142",
+            "admission_day": 1,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p145",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p146",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p148",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p152",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p154",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p157",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p163",
+            "admission_day": 17,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p164",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p166",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p167",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p171",
+            "admission_day": 17,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p172",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p173",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p175",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p177",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p178",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p179",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p180",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p182",
+            "admission_day": 17,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p185",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p186",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p189",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p191",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p192",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p193",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p194",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p195",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p197",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p198",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p200",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p201",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p203",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p204",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p205",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p206",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p207",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p208",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p210",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p211",
+            "admission_day": 8,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p213",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p216",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p218",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p220",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p222",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p223",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p225",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p226",
+            "admission_day": 2,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p227",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p228",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p229",
+            "admission_day": 4,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p230",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p232",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p233",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p235",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p236",
+            "admission_day": 16,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p240",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p241",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p242",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p243",
+            "admission_day": 19,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p244",
+            "admission_day": 9,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p245",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p246",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p248",
+            "admission_day": 11,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p249",
+            "admission_day": 3,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p250",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p252",
+            "admission_day": 14,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p253",
+            "admission_day": 7,
+            "room": null,
+            "operating_theater": null
+        },
+        {
+            "id": "p254",
+            "admission_day": 13,
+            "room": null,
+            "operating_theater": null
+        }
+    ],
+    "nurses": []
+}

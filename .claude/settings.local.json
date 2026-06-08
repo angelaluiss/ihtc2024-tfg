@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "Bash(python ejecutar_rapido.py --instancias i13 --forzar --silencioso)",
+      "Bash(python ejecutar_rapido.py --instancias i13 --forzar)",
+      "Bash(python comparacion_memoria.py)",
+      "PowerShell(cd \"C:\\\\Users\\\\angel\\\\OneDrive\\\\Escritorio\\\\tfg\"; $f = \"resultados_rapido_benchmark\\\\comparacion_memoria.docx\"; \"{0:N0} KB\" -f \\(\\(Get-Item $f\\).Length/1KB\\); python -c \"from docx import Document; d=Document\\(r'resultados_rapido_benchmark/comparacion_memoria.docx'\\); print\\('Parrafos:', len\\(d.paragraphs\\)\\); print\\('Tablas:', len\\(d.tables\\)\\); [print\\('  Tabla', i, '->', len\\(t.rows\\), 'filas x', len\\(t.columns\\), 'cols'\\) for i,t in enumerate\\(d.tables\\)]\")"
+    ]
+  }
+}

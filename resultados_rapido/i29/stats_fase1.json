@@ -1,0 +1,7 @@
+{
+    "status": 9,
+    "scheduled_patients": 250,
+    "unscheduled_optional": 14,
+    "open_operating_theater_proxy": 64,
+    "feedback_slack_total": 0.0
+}

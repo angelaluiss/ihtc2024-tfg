@@ -1,0 +1,40 @@
+# Cachés y temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Artículos / bibliografía (no forman parte del código; pesan mucho)
+artículos/
+
+# Ficheros de Gurobi / depuración
+*.ilp
+*.lp
+*.log
+*.mps
+gurobi.log
+
+# Carpetas de resultados de desarrollo / en curso (se regeneran).
+# Se conservan solo las del run principal (resultados_rapido*) y el informe.
+resultados_competicion_ihtc/
+resultados/
+resultados_benchmark/
+resultados_competicion/
+resultados_competicion_benchmark/
+diagnostico_admisiones/
+diagnostico_cirujanos_opcionales/
+
+# Backups y ficheros temporales de edición
+*.bak
+*.bak_pre_fix
+*_backup.py
+
+# Soluciones sueltas de desarrollo (se regeneran)
+solucion_fase*.json
+solucion_final*.json
+feedback_fase2.json
+estadisticas_fase*.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
