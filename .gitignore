@@ -50,6 +50,9 @@ artículos/
 *.bak_pre_fix
 *_backup.py
 
+# Configuración local de herramientas (no forma parte del proyecto)
+.claude/
+
 # Sistema
 .DS_Store
 Thumbs.db
