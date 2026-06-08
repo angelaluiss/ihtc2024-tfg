@@ -1,2 +1,0 @@
-instancia,estado,total_violations,total_cost,pacientes_f1,pacientes_f2,pacientes_eliminados_poda,uncovered_room,room_skill_level_raw,excessive_nurse_workload_raw,continuity_of_care_raw,score_interno,t_fase1,t_fase2,t_fase3,t_total,cost_ElectiveUnscheduledPatients,cost_PatientDelay,cost_RoomAgeMix,cost_RoomSkillLevel,cost_ExcessiveNurseWorkload,cost_ContinuityOfCare,cost_OpenOperatingTheater,cost_SurgeonTransfer,threads,mip_gap,timestamp
-i29,OK,0,15357,250,242,8,0,722.0,336.0,1679,2737.0,242.4,765.8,41.2,1050.0,6600,4280,1000,722,336,1679,710,30,8,0.01,2026-06-08T14:22:49

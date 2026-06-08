@@ -12,6 +12,7 @@ env/
 
 # Resultados y salidas generadas (se regeneran con los scripts)
 resultados_*/
+/resultados/
 results/*
 !results/.gitkeep
 diagnostico_admisiones/
