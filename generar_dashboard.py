@@ -258,6 +258,12 @@ def main():
         "agg": [{"key": c, "label": t, "color": col, "n": agg_n[c], "o": agg_o[c],
                  "delta": agg_n[c] - agg_o[c]} for c, t, col in COMP],
     }
+    # Estructura de la solución oficial por instancia (para el explorador comparativo)
+    soluciones_oficiales = {
+        inst: oficial[inst]["solucion"]
+        for inst in oficial
+        if oficial[inst].get("estado") == "OK" and oficial[inst].get("solucion")
+    }
 
     datos = {
         "filas": filas, "kpis": kpis, "etiqueta": args.etiqueta,
@@ -266,6 +272,7 @@ def main():
         "comp_def": [[c, t, col] for c, t, col in COMP],
         "ablacion": construir_ablacion(det, cargar_detalles(BASE / args.ablacion)),
         "soluciones": soluciones,
+        "soluciones_oficiales": soluciones_oficiales,
         "comparativa": comparativa,
     }
 
@@ -406,6 +413,22 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="card"><h3>Detalle comparativo por instancia</h3>
       <div class="tablewrap"><table id="tablaComp"><thead></thead><tbody></tbody></table></div>
     </div>
+
+    <div class="card">
+      <div class="toolbar"><b>Explorar instancia:</b> <select id="selComp"></select>
+        <span class="pill">Estructura de la solución: propuesta vs oficial</span></div>
+    </div>
+    <div class="grid2b">
+      <div class="card"><h3>Ocupación de camas por día</h3><canvas id="chCBed" height="150"></canvas>
+        <div class="note">Camas ocupadas por cada solución frente a la capacidad total.</div></div>
+      <div class="card"><h3>Ingresos por día</h3><canvas id="chCAdm" height="150"></canvas></div>
+    </div>
+    <div class="card"><h3>Uso de quirófanos por día (minutos)</h3><canvas id="chCOT" height="110"></canvas>
+      <div class="note">Minutos de cirugía de cada solución frente a la capacidad diaria.</div></div>
+    <div class="grid2b">
+      <div class="card"><h3>Mapa de ocupación &mdash; Propuesta</h3><div class="hm" id="heatN"></div></div>
+      <div class="card"><h3>Mapa de ocupación &mdash; Oficial</h3><div class="hm" id="heatO"></div></div>
+    </div>
   </div>
 
   <div class="panel" id="p-ablacion">
@@ -493,6 +516,18 @@ let chBed,chAdm,chOT;
 function colorOcc(frac){ if(frac<=0)return '#ffffff'; const t=Math.min(1,frac);
   const r=Math.round(220-(220-46)*t),g=Math.round(235-(235-87)*t),b=Math.round(240-(240-156)*t);
   return `rgb(${r},${g},${b})`; }
+function heatmapHTML(s){
+  let h='<table><tr><th class="ch">hab\\día</th>';
+  for(let d=0;d<s.days;d++) h+=`<th class="ch">${d}</th>`;
+  h+='</tr>';
+  s.room_ids.forEach((rid,ri)=>{
+    h+=`<tr><td class="rh">${rid} <span style="color:#9aa3b0">(${s.cap[ri]})</span></td>`;
+    for(let d=0;d<s.days;d++){ const oc=s.mat[ri][d], frac=s.cap[ri]?oc/s.cap[ri]:0;
+      h+=`<td class="cell" title="${rid} día ${d}: ${oc}/${s.cap[ri]}" style="background:${colorOcc(frac)}">${oc||''}</td>`; }
+    h+='</tr>';
+  });
+  return h+'</table>';
+}
 function pintaSolucion(inst){
   const s=D.soluciones[inst]; if(!s)return;
   const dias=[...Array(s.days).keys()];
@@ -588,6 +623,41 @@ if(insts.length) pintaSolucion(insts[0]);
     `<td class="${x.delta>0?'neg':'pos'}">${x.delta>0?'+':''}${fmt(x.delta)}</td>`+
     `<td><span class="badge ${banda(x.gap)}">${x.gap>0?'+':''}${x.gap}%</span></td>`+
     `<td>${x.sched_n} / ${x.sched_o}</td><td>${x.unsched_n} / ${x.unsched_o}</td></tr>`).join('');
+
+  // ── Explorador estructural: propuesta vs oficial ────────────────
+  const COL_N='#2E579C', COL_O='#2E9C57', COL_CAP='#C03030';
+  let chCBed,chCAdm,chCOT;
+  function pintaComp(inst){
+    const sn=D.soluciones[inst], so=D.soluciones_oficiales[inst];
+    if(!sn||!so) return;
+    const dias=[...Array(sn.days).keys()];
+    if(window.Chart){
+      [chCBed,chCAdm,chCOT].forEach(c=>c&&c.destroy());
+      chCBed=new Chart(document.getElementById('chCBed'),{type:'line',
+        data:{labels:dias,datasets:[
+          {label:'Propuesta',data:sn.bed,borderColor:COL_N,backgroundColor:'rgba(46,87,156,.10)',fill:true,tension:.2},
+          {label:'Oficial',data:so.bed,borderColor:COL_O,backgroundColor:'rgba(46,156,87,.10)',fill:true,tension:.2},
+          {label:'Capacidad',data:dias.map(()=>sn.total_beds),borderColor:COL_CAP,borderDash:[6,4],pointRadius:0}]},
+        options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
+      chCAdm=new Chart(document.getElementById('chCAdm'),{type:'bar',
+        data:{labels:dias,datasets:[
+          {label:'Propuesta',data:sn.adm,backgroundColor:COL_N},
+          {label:'Oficial',data:so.adm,backgroundColor:COL_O}]},
+        options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
+      chCOT=new Chart(document.getElementById('chCOT'),{type:'bar',
+        data:{labels:dias,datasets:[
+          {label:'Propuesta',data:sn.ot_used,backgroundColor:COL_N},
+          {label:'Oficial',data:so.ot_used,backgroundColor:COL_O},
+          {label:'Capacidad',data:sn.ot_cap,type:'line',borderColor:COL_CAP,borderDash:[6,4],pointRadius:0}]},
+        options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
+    }
+    document.getElementById('heatN').innerHTML=heatmapHTML(sn);
+    document.getElementById('heatO').innerHTML=heatmapHTML(so);
+  }
+  const selC=document.getElementById('selComp');
+  selC.innerHTML=ci.map(x=>`<option value="${x.inst}">${x.inst}</option>`).join('');
+  selC.onchange=()=>pintaComp(selC.value);
+  if(ci.length) pintaComp(ci[0].inst);
 })();
 
 // Ablación nota + tabla
