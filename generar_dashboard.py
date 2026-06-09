@@ -90,19 +90,34 @@ def datos_solucion(inst_json, sol_json):
     n_total = len(pat)
     n_mand = sum(1 for p in pat.values() if p.get("mandatory"))
     n_opt = n_total - n_mand
-    n_sched = len(sol_p)
-    n_unsched = n_total - n_sched
 
     bed = [0] * days
     adm = [0] * days
     ot_used = [0] * days
     mat = {r: [0] * days for r in room_ids}
 
+    # Las soluciones oficiales pueden listar pacientes NO admitidos con
+    # admission_day = "none"; se ignoran (cuentan como no programados).
+    def _dia_valido(v):
+        if v is None:
+            return None
+        if isinstance(v, int):
+            return v
+        s = str(v).strip().lower()
+        if s.isdigit():
+            return int(s)
+        return None
+
+    n_sched = 0
     for sp in sol_p:
         p = pat.get(sp["id"])
         if not p:
             continue
-        d0 = int(sp["admission_day"]); los = int(p["length_of_stay"])
+        d0 = _dia_valido(sp.get("admission_day"))
+        if d0 is None:
+            continue   # paciente listado pero no admitido
+        n_sched += 1
+        los = int(p["length_of_stay"])
         if 0 <= d0 < days:
             adm[d0] += 1
             ot_used[d0] += p.get("surgery_duration", 0)
@@ -111,6 +126,7 @@ def datos_solucion(inst_json, sol_json):
             bed[d] += 1
             if room in mat:
                 mat[room][d] += 1
+    n_unsched = n_total - n_sched
     for oc in occ:
         room = oc.get("room_id"); los = int(oc.get("length_of_stay", 0))
         for d in range(0, min(los, days)):
@@ -166,6 +182,8 @@ def main():
     ap.add_argument("--instancias", default="instancias")
     ap.add_argument("--ablacion", default="resultados_ablacion_benchmark")
     ap.add_argument("--oficiales", default="resultados_oficiales.json")
+    ap.add_argument("--oficiales-sol", default="resultados_oficiales_benchmark",
+                    help="Carpeta con el detalle de las soluciones oficiales procesadas.")
     ap.add_argument("--salida", default="dashboard.html")
     ap.add_argument("--etiqueta", default="condiciones ampliadas (8 hilos, sin límite estricto)")
     args = ap.parse_args()
@@ -204,6 +222,43 @@ def main():
         "coste_total": sum_tot,
     }
 
+    # ── Comparativa con soluciones oficiales ──────────────────────────
+    SHORT2FULL = {"unsched": "ElectiveUnscheduledPatients", "delay": "PatientDelay",
+                  "skill": "RoomSkillLevel", "contin": "ContinuityOfCare",
+                  "openot": "OpenOperatingTheater", "agemix": "RoomAgeMix",
+                  "workload": "ExcessiveNurseWorkload", "transfer": "SurgeonTransfer"}
+    oficial = cargar_detalles(BASE / args.oficiales_sol)
+    nuestros_por_inst = {f["inst"]: f for f in filas}
+    comp_inst, agg_n, agg_o = [], {c: 0 for c, _, _ in COMP}, {c: 0 for c, _, _ in COMP}
+    for inst in sorted(set(oficial) & set(nuestros_por_inst)):
+        do, fn = oficial[inst], nuestros_por_inst[inst]
+        if do.get("estado") != "OK" or fn.get("obtenido") is None:
+            continue
+        co, cn = do.get("total_cost"), fn.get("obtenido")
+        if co is None or cn is None:
+            continue
+        comps = {}
+        for c, _, _ in COMP:
+            vn = fn.get(c, 0) or 0
+            vo = do.get(f"cost_{SHORT2FULL[c]}", 0) or 0
+            comps[c] = {"n": vn, "o": vo}
+            agg_n[c] += vn; agg_o[c] += vo
+        sol_o = do.get("solucion", {})
+        sol_n = soluciones.get(inst, {})
+        comp_inst.append({
+            "inst": inst, "nuestro": cn, "oficial": co,
+            "delta": cn - co, "gap": round((cn - co) / co * 100, 1) if co else None,
+            "comps": comps,
+            "sched_n": sol_n.get("n_sched"), "sched_o": sol_o.get("n_sched"),
+            "unsched_n": sol_n.get("n_unsched"), "unsched_o": sol_o.get("n_unsched"),
+        })
+    comparativa = {
+        "n": len(comp_inst),
+        "por_instancia": comp_inst,
+        "agg": [{"key": c, "label": t, "color": col, "n": agg_n[c], "o": agg_o[c],
+                 "delta": agg_n[c] - agg_o[c]} for c, t, col in COMP],
+    }
+
     datos = {
         "filas": filas, "kpis": kpis, "etiqueta": args.etiqueta,
         "generado": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -211,6 +266,7 @@ def main():
         "comp_def": [[c, t, col] for c, t, col in COMP],
         "ablacion": construir_ablacion(det, cargar_detalles(BASE / args.ablacion)),
         "soluciones": soluciones,
+        "comparativa": comparativa,
     }
 
     html = PLANTILLA.replace("/*DATOS*/", json.dumps(datos, ensure_ascii=False))
@@ -278,6 +334,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="tab" data-p="costes">Costes por instancia</div>
     <div class="tab" data-p="instancias">Instancias</div>
     <div class="tab" data-p="solucion">Solución</div>
+    <div class="tab" data-p="comparativa">Comparativa oficial</div>
     <div class="tab" data-p="ablacion">Ablación</div>
   </div>
 
@@ -328,6 +385,26 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="card"><h3>Mapa de ocupación: habitación × día</h3>
       <div class="hm" id="heatmap"></div>
       <div class="note">Intensidad proporcional a la ocupación de la habitación ese día (verde claro = poca, azul oscuro = llena).</div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-comparativa">
+    <div class="kpis" id="compKpis"></div>
+    <div class="grid2b">
+      <div class="card"><h3>Coste por componente: propuesta vs oficial (agregado)</h3>
+        <canvas id="chCompAgg" height="150"></canvas>
+        <div class="note">Suma de cada componente sobre las instancias con solución oficial. Revela en qué se concentra la brecha.</div></div>
+      <div class="card"><h3>Brecha por componente (nuestro − oficial)</h3>
+        <canvas id="chCompDelta" height="150"></canvas>
+        <div class="note">Cuánto coste de más aportamos en cada componente. Barras altas = cuello de botella.</div></div>
+    </div>
+    <div class="card"><h3>Coste total por instancia: propuesta vs oficial</h3>
+      <canvas id="chCompTot" height="110"></canvas></div>
+    <div class="card"><h3>Pacientes programados por instancia: propuesta vs oficial</h3>
+      <canvas id="chCompSched" height="110"></canvas>
+      <div class="note">Diferencia en pacientes admitidos: dónde el método oficial coloca opcionales que el nuestro descarta.</div></div>
+    <div class="card"><h3>Detalle comparativo por instancia</h3>
+      <div class="tablewrap"><table id="tablaComp"><thead></thead><tbody></tbody></table></div>
     </div>
   </div>
 
@@ -461,6 +538,57 @@ const sel=document.getElementById('selInst');
 sel.innerHTML=insts.map(i=>`<option value="${i}">${i}</option>`).join('');
 sel.onchange=()=>pintaSolucion(sel.value);
 if(insts.length) pintaSolucion(insts[0]);
+
+// ── Comparativa con soluciones oficiales ──────────────────────────
+(function(){
+  const C = D.comparativa;
+  if(!C || !C.n){
+    document.getElementById('compKpis').innerHTML =
+      '<div class="kpi"><div class="v">—</div><div class="l">Sin datos oficiales. Ejecuta procesar_soluciones_oficiales.py y regenera.</div></div>';
+    return;
+  }
+  const ci = C.por_instancia, labs = ci.map(x=>x.inst);
+  const sumN = C.agg.reduce((a,x)=>a+x.n,0), sumO = C.agg.reduce((a,x)=>a+x.o,0);
+  const peor = C.agg.slice().sort((a,b)=>b.delta-a.delta)[0];
+  document.getElementById('compKpis').innerHTML = [
+    ['Instancias comparadas', C.n+'/30'],
+    ['Coste total propuesta', fmt(sumN)],
+    ['Coste total oficial', fmt(sumO)],
+    ['Sobrecoste global', '+'+(sumO?Math.round((sumN-sumO)/sumO*100):0)+'%'],
+    ['Mayor cuello de botella', peor?peor.label:'—'],
+  ].map(([l,v])=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+
+  if(window.Chart){
+    new Chart(document.getElementById('chCompAgg'),{type:'bar',
+      data:{labels:C.agg.map(x=>x.label),datasets:[
+        {label:'Propuesta',data:C.agg.map(x=>x.n),backgroundColor:'#2E579C'},
+        {label:'Oficial',data:C.agg.map(x=>x.o),backgroundColor:'#2E9C57'}]},
+      options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:10}}}}}});
+    new Chart(document.getElementById('chCompDelta'),{type:'bar',
+      data:{labels:C.agg.map(x=>x.label),datasets:[{data:C.agg.map(x=>x.delta),
+        backgroundColor:C.agg.map(x=>x.delta>0?'#C03030':'#2E9C57')}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{title:{display:true,text:'Δ coste'}}}}});
+    new Chart(document.getElementById('chCompTot'),{type:'bar',
+      data:{labels:labs,datasets:[
+        {label:'Propuesta',data:ci.map(x=>x.nuestro),backgroundColor:'#2E579C'},
+        {label:'Oficial',data:ci.map(x=>x.oficial),backgroundColor:'#2E9C57'}]},
+      options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
+    new Chart(document.getElementById('chCompSched'),{type:'bar',
+      data:{labels:labs,datasets:[
+        {label:'Programados (propuesta)',data:ci.map(x=>x.sched_n),backgroundColor:'#2E579C'},
+        {label:'Programados (oficial)',data:ci.map(x=>x.sched_o),backgroundColor:'#2E9C57'}]},
+      options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
+  }
+
+  document.querySelector('#tablaComp thead').innerHTML =
+    '<tr><th>Inst</th><th>Propuesta</th><th>Oficial</th><th>Δ</th><th>Δ %</th>'+
+    '<th>Prog. n/o</th><th>Descart. n/o</th></tr>';
+  document.querySelector('#tablaComp tbody').innerHTML = ci.map(x=>
+    `<tr><td>${x.inst}</td><td><b>${fmt(x.nuestro)}</b></td><td>${fmt(x.oficial)}</td>`+
+    `<td class="${x.delta>0?'neg':'pos'}">${x.delta>0?'+':''}${fmt(x.delta)}</td>`+
+    `<td><span class="badge ${banda(x.gap)}">${x.gap>0?'+':''}${x.gap}%</span></td>`+
+    `<td>${x.sched_n} / ${x.sched_o}</td><td>${x.unsched_n} / ${x.unsched_o}</td></tr>`).join('');
+})();
 
 // Ablación nota + tabla
 document.getElementById('ablNote').innerHTML=D.ablacion.real
