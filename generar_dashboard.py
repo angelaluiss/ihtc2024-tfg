@@ -186,6 +186,8 @@ def main():
                     help="Carpeta con el detalle de las soluciones oficiales procesadas.")
     ap.add_argument("--salida", default="dashboard.html")
     ap.add_argument("--etiqueta", default="condiciones ampliadas (8 hilos, sin límite estricto)")
+    ap.add_argument("--tab", default="inicio",
+                    help="Pestaña pre-activada en el HTML generado (para capturas).")
     args = ap.parse_args()
 
     det = cargar_detalles(BASE / args.carpeta)
@@ -277,6 +279,15 @@ def main():
     }
 
     html = PLANTILLA.replace("/*DATOS*/", json.dumps(datos, ensure_ascii=False))
+    # Pre-activar una pestaña concreta (para capturas headless de cada vista)
+    if getattr(args, "tab", None) and args.tab != "inicio":
+        t = args.tab
+        html = (html
+            .replace('class="tab active" data-p="inicio"', 'class="tab" data-p="inicio"')
+            .replace(f'class="tab" data-p="{t}"', f'class="tab active" data-p="{t}"')
+            .replace('class="panel active" id="p-inicio"', 'class="panel" id="p-inicio"')
+            .replace(f'class="panel" id="p-{t}"', f'class="panel active" id="p-{t}"'))
+
     ruta = BASE / args.salida
     ruta.write_text(html, encoding="utf-8")
     kb = ruta.stat().st_size / 1024
