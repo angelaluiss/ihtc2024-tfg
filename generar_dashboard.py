@@ -228,10 +228,10 @@ def main():
                   "openot": "OpenOperatingTheater", "agemix": "RoomAgeMix",
                   "workload": "ExcessiveNurseWorkload", "transfer": "SurgeonTransfer"}
     oficial = cargar_detalles(BASE / args.oficiales_sol)
-    nuestros_por_inst = {f["inst"]: f for f in filas}
+    propuesta_por_inst = {f["inst"]: f for f in filas}
     comp_inst, agg_n, agg_o = [], {c: 0 for c, _, _ in COMP}, {c: 0 for c, _, _ in COMP}
-    for inst in sorted(set(oficial) & set(nuestros_por_inst)):
-        do, fn = oficial[inst], nuestros_por_inst[inst]
+    for inst in sorted(set(oficial) & set(propuesta_por_inst)):
+        do, fn = oficial[inst], propuesta_por_inst[inst]
         if do.get("estado") != "OK" or fn.get("obtenido") is None:
             continue
         co, cn = do.get("total_cost"), fn.get("obtenido")
@@ -246,7 +246,7 @@ def main():
         sol_o = do.get("solucion", {})
         sol_n = soluciones.get(inst, {})
         comp_inst.append({
-            "inst": inst, "nuestro": cn, "oficial": co,
+            "inst": inst, "propuesta": cn, "oficial": co,
             "delta": cn - co, "gap": round((cn - co) / co * 100, 1) if co else None,
             "comps": comps,
             "sched_n": sol_n.get("n_sched"), "sched_o": sol_o.get("n_sched"),
@@ -328,6 +328,12 @@ PLANTILLA = r"""<!DOCTYPE html>
   .hm .ch{padding:2px;background:#f7f9fc;color:var(--mut)}
   .schips{display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 12px}
   .chip{font-size:13px} .chip b{font-size:18px;color:var(--azul)}
+  .lead{font-size:14px;color:#3a4654;margin:4px 0 14px;line-height:1.55}
+  .headline{display:flex;gap:14px;flex-wrap:wrap}
+  .hcard{background:#eef3fb;border-radius:10px;padding:14px 18px;min-width:150px;border:1px solid #dde6f3}
+  .hcard .hv{font-size:24px;font-weight:700;color:var(--azul)}
+  .hcard .hl{font-size:12px;color:var(--mut);margin-top:2px}
+  .navguide{margin:0;padding-left:18px;font-size:13px;line-height:1.8}
   footer{text-align:center;color:var(--mut);font-size:12px;padding:18px}
 </style>
 </head>
@@ -337,7 +343,8 @@ PLANTILLA = r"""<!DOCTYPE html>
 <main>
   <div class="kpis" id="kpis"></div>
   <div class="tabs">
-    <div class="tab active" data-p="resumen">Resumen</div>
+    <div class="tab active" data-p="inicio">Inicio</div>
+    <div class="tab" data-p="resumen">Resumen</div>
     <div class="tab" data-p="costes">Costes por instancia</div>
     <div class="tab" data-p="instancias">Instancias</div>
     <div class="tab" data-p="solucion">Solución</div>
@@ -345,7 +352,33 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="tab" data-p="ablacion">Ablación</div>
   </div>
 
-  <div class="panel active" id="p-resumen">
+  <div class="panel active" id="p-inicio">
+    <div class="card">
+      <h3>Cuadro de mandos &middot; Planificación integrada hospitalaria (IHTC 2024)</h3>
+      <p class="lead">Herramienta interactiva para analizar y comparar las soluciones de la
+        metodología propuesta frente a los mejores resultados oficiales de la competición,
+        sobre las 30 instancias públicas. Permite localizar visualmente las deficiencias de la
+        propuesta y el origen de la diferencia de coste.</p>
+      <div class="headline" id="headline"></div>
+    </div>
+    <div class="grid2b">
+      <div class="card"><h3>Cómo navegar</h3>
+        <ul class="navguide">
+          <li><b>Resumen:</b> gap por instancia y composición global del coste.</li>
+          <li><b>Costes por instancia:</b> desglose en los ocho componentes del validador.</li>
+          <li><b>Instancias:</b> tamaño de cada caso y reparto de pacientes.</li>
+          <li><b>Solución:</b> ocupación de camas, uso de quirófanos y mapa por habitación.</li>
+          <li><b>Comparativa oficial:</b> propuesta frente a oficial, componente a componente y estructura a estructura.</li>
+          <li><b>Ablación:</b> aportación de la fase de readmisión al coste.</li>
+        </ul>
+      </div>
+      <div class="card"><h3>Lectura principal</h3>
+        <p class="lead" id="lectura"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-resumen">
     <div class="grid2">
       <div class="card"><h3>Gap relativo por instancia (%)</h3><canvas id="chGap" height="120"></canvas></div>
       <div class="card"><h3>Composición del coste total</h3><canvas id="chComp" height="120"></canvas></div>
@@ -401,15 +434,15 @@ PLANTILLA = r"""<!DOCTYPE html>
       <div class="card"><h3>Coste por componente: propuesta vs oficial (agregado)</h3>
         <canvas id="chCompAgg" height="150"></canvas>
         <div class="note">Suma de cada componente sobre las instancias con solución oficial. Revela en qué se concentra la brecha.</div></div>
-      <div class="card"><h3>Brecha por componente (nuestro − oficial)</h3>
+      <div class="card"><h3>Brecha por componente (propuesta − oficial)</h3>
         <canvas id="chCompDelta" height="150"></canvas>
-        <div class="note">Cuánto coste de más aportamos en cada componente. Barras altas = cuello de botella.</div></div>
+        <div class="note">Coste adicional de la propuesta en cada componente. Barras altas = cuello de botella.</div></div>
     </div>
     <div class="card"><h3>Coste total por instancia: propuesta vs oficial</h3>
       <canvas id="chCompTot" height="110"></canvas></div>
     <div class="card"><h3>Pacientes programados por instancia: propuesta vs oficial</h3>
       <canvas id="chCompSched" height="110"></canvas>
-      <div class="note">Diferencia en pacientes admitidos: dónde el método oficial coloca opcionales que el nuestro descarta.</div></div>
+      <div class="note">Diferencia en pacientes admitidos: dónde el método oficial coloca opcionales que la propuesta descarta.</div></div>
     <div class="card"><h3>Detalle comparativo por instancia</h3>
       <div class="tablewrap"><table id="tablaComp"><thead></thead><tbody></tbody></table></div>
     </div>
@@ -464,6 +497,31 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
   t.classList.add('active'); document.getElementById('p-'+t.dataset.p).classList.add('active');
 });
+
+// ── Inicio: titulares y lectura principal ──────────────────────────
+(function(){
+  const C=D.comparativa;
+  let h=`<div class="hcard"><div class="hv">${k.sin_violaciones}</div><div class="hl">instancias sin violaciones</div></div>`;
+  h+=`<div class="hcard"><div class="hv">${k.gap_medio!=null?k.gap_medio+'%':'—'}</div><div class="hl">gap medio frente al óptimo oficial</div></div>`;
+  h+=`<div class="hcard"><div class="hv">${k.dentro10}/${k.n_gap}</div><div class="hl">dentro del +10%</div></div>`;
+  let lectura='La metodología propuesta resuelve las 30 instancias sin violaciones de '+
+    'restricciones duras. ';
+  if(C && C.n){
+    const sumN=C.agg.reduce((a,x)=>a+x.n,0), sumO=C.agg.reduce((a,x)=>a+x.o,0);
+    const sobre=Math.round((sumN-sumO)/sumO*100);
+    const top=[...C.agg].sort((a,b)=>b.delta-a.delta)[0];
+    const brecha=sumN-sumO;
+    const pctTop=Math.round(top.delta/brecha*100);
+    h+=`<div class="hcard"><div class="hv">+${sobre}%</div><div class="hl">sobrecoste agregado vs oficial</div></div>`;
+    h+=`<div class="hcard"><div class="hv">${top.label}</div><div class="hl">principal cuello de botella (${pctTop}% de la brecha)</div></div>`;
+    lectura+=`Frente a los mejores resultados oficiales, el sobrecoste agregado es del `+
+      `${sobre} %, concentrado sobre todo en <b>${top.label}</b> (${pctTop} % de la `+
+      `diferencia total). El cuello de botella no está en la enfermería ni en los quirófanos, `+
+      `sino en la fase de admisión: en programar más pacientes opcionales.`;
+  }
+  document.getElementById('headline').innerHTML=h;
+  const el=document.getElementById('lectura'); if(el) el.innerHTML=lectura;
+})();
 
 const okF = D.filas.filter(f=>f.gap!=null);
 const labels = okF.map(f=>f.inst), gapVals = okF.map(f=>f.gap);
@@ -605,7 +663,7 @@ if(insts.length) pintaSolucion(insts[0]);
       options:{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}}},y:{title:{display:true,text:'Δ coste'}}}}});
     new Chart(document.getElementById('chCompTot'),{type:'bar',
       data:{labels:labs,datasets:[
-        {label:'Propuesta',data:ci.map(x=>x.nuestro),backgroundColor:'#2E579C'},
+        {label:'Propuesta',data:ci.map(x=>x.propuesta),backgroundColor:'#2E579C'},
         {label:'Oficial',data:ci.map(x=>x.oficial),backgroundColor:'#2E9C57'}]},
       options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
     new Chart(document.getElementById('chCompSched'),{type:'bar',
@@ -619,7 +677,7 @@ if(insts.length) pintaSolucion(insts[0]);
     '<tr><th>Inst</th><th>Propuesta</th><th>Oficial</th><th>Δ</th><th>Δ %</th>'+
     '<th>Prog. n/o</th><th>Descart. n/o</th></tr>';
   document.querySelector('#tablaComp tbody').innerHTML = ci.map(x=>
-    `<tr><td>${x.inst}</td><td><b>${fmt(x.nuestro)}</b></td><td>${fmt(x.oficial)}</td>`+
+    `<tr><td>${x.inst}</td><td><b>${fmt(x.propuesta)}</b></td><td>${fmt(x.oficial)}</td>`+
     `<td class="${x.delta>0?'neg':'pos'}">${x.delta>0?'+':''}${fmt(x.delta)}</td>`+
     `<td><span class="badge ${banda(x.gap)}">${x.gap>0?'+':''}${x.gap}%</span></td>`+
     `<td>${x.sched_n} / ${x.sched_o}</td><td>${x.unsched_n} / ${x.unsched_o}</td></tr>`).join('');
