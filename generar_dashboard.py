@@ -96,6 +96,13 @@ def datos_solucion(inst_json, sol_json):
     ot_used = [0] * days
     mat = {r: [0] * days for r in room_ids}
 
+    # Distribuciones por recurso (introspección de la solución)
+    ot_ids = [t["id"] for t in ots]
+    surg_ids = [s["id"] for s in inst_json.get("surgeons", [])]
+    ot_min = {t: 0 for t in ot_ids}
+    surg_min = {s: 0 for s in surg_ids}
+    by_gender, by_age = {}, {}
+
     # Las soluciones oficiales pueden listar pacientes NO admitidos con
     # admission_day = "none"; se ignoran (cuentan como no programados).
     def _dia_valido(v):
@@ -118,9 +125,18 @@ def datos_solucion(inst_json, sol_json):
             continue   # paciente listado pero no admitido
         n_sched += 1
         los = int(p["length_of_stay"])
+        dur = p.get("surgery_duration", 0)
         if 0 <= d0 < days:
             adm[d0] += 1
-            ot_used[d0] += p.get("surgery_duration", 0)
+            ot_used[d0] += dur
+        ot = sp.get("operating_theater")
+        if ot in ot_min:
+            ot_min[ot] += dur
+        sid = p.get("surgeon_id")
+        if sid in surg_min:
+            surg_min[sid] += dur
+        g = p.get("gender", "?"); by_gender[g] = by_gender.get(g, 0) + 1
+        ag = p.get("age_group", "?"); by_age[ag] = by_age.get(ag, 0) + 1
         room = sp.get("room")
         for d in range(d0, min(d0 + los, days)):
             bed[d] += 1
@@ -146,6 +162,10 @@ def datos_solucion(inst_json, sol_json):
         "bed": bed, "adm": adm, "ot_used": ot_used, "ot_cap": ot_cap,
         "room_ids": room_ids, "cap": [cap[r] for r in room_ids],
         "mat": [mat[r] for r in room_ids],
+        "ot_dist_ids": ot_ids, "ot_dist_min": [ot_min[t] for t in ot_ids],
+        "surg_ids": surg_ids, "surg_min": [surg_min[s] for s in surg_ids],
+        "room_pd": [sum(mat[r]) for r in room_ids],
+        "by_gender": by_gender, "by_age": by_age,
     }
 
 
@@ -229,6 +249,18 @@ def main():
                   "skill": "RoomSkillLevel", "contin": "ContinuityOfCare",
                   "openot": "OpenOperatingTheater", "agemix": "RoomAgeMix",
                   "workload": "ExcessiveNurseWorkload", "transfer": "SurgeonTransfer"}
+    # Adjunta a cada solución sus violaciones duras y su desglose de coste
+    # (introspección por instancia en la vista de Solución).
+    HARD = ["RoomGenderMix", "PatientRoomCompatibility", "SurgeonOvertime",
+            "OperatingTheaterOvertime", "MandatoryUnscheduledPatients",
+            "AdmissionDay", "RoomCapacity", "NursePresence", "UncoveredRoom"]
+    for inst, s in soluciones.items():
+        di = det.get(inst, {})
+        s["viol"] = {h: di.get(f"viol_{h}", 0) or 0 for h in HARD}
+        s["total_viol"] = di.get("total_violations")
+        s["costes"] = {c: (di.get(f"cost_{SHORT2FULL[c]}", 0) or 0) for c, _, _ in COMP}
+        s["total_cost"] = di.get("total_cost")
+
     oficial = cargar_detalles(BASE / args.oficiales_sol)
     propuesta_por_inst = {f["inst"]: f for f in filas}
     comp_inst, agg_n, agg_o = [], {c: 0 for c, _, _ in COMP}, {c: 0 for c, _, _ in COMP}
@@ -359,7 +391,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="tab" data-p="costes">Costes por instancia</div>
     <div class="tab" data-p="instancias">Instancias</div>
     <div class="tab" data-p="solucion">Solución</div>
-    <div class="tab" data-p="comparativa">Comparativa oficial</div>
+    <div class="tab" data-p="comparativa">Comparativa: mejor resultado</div>
     <div class="tab" data-p="ablacion">Ablación</div>
   </div>
 
@@ -367,7 +399,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="card">
       <h3>Cuadro de mandos &middot; Planificación integrada hospitalaria (IHTC 2024)</h3>
       <p class="lead">Herramienta interactiva para analizar y comparar las soluciones de la
-        metodología propuesta frente a los mejores resultados oficiales de la competición,
+        metodología propuesta frente a los mejores resultados de la competición,
         sobre las 30 instancias públicas. Permite localizar visualmente las deficiencias de la
         propuesta y el origen de la diferencia de coste.</p>
       <div class="headline" id="headline"></div>
@@ -379,7 +411,7 @@ PLANTILLA = r"""<!DOCTYPE html>
           <li><b>Costes por instancia:</b> desglose en los ocho componentes del validador.</li>
           <li><b>Instancias:</b> tamaño de cada caso y reparto de pacientes.</li>
           <li><b>Solución:</b> ocupación de camas, uso de quirófanos y mapa por habitación.</li>
-          <li><b>Comparativa oficial:</b> propuesta frente a oficial, componente a componente y estructura a estructura.</li>
+          <li><b>Comparativa con el mejor resultado:</b> propuesta frente al mejor resultado de la competición, componente a componente y estructura a estructura.</li>
           <li><b>Ablación:</b> aportación de la fase de readmisión al coste.</li>
         </ul>
       </div>
@@ -437,30 +469,51 @@ PLANTILLA = r"""<!DOCTYPE html>
       <div class="hm" id="heatmap"></div>
       <div class="note">Intensidad proporcional a la ocupación de la habitación ese día (verde claro = poca, azul oscuro = llena).</div>
     </div>
+
+    <h3 style="margin:8px 2px">Introspección de la solución</h3>
+    <div class="grid2b">
+      <div class="card"><h3>Violaciones de restricciones duras</h3>
+        <div class="tablewrap" style="max-height:none"><table id="tablaViol"><thead></thead><tbody></tbody></table></div>
+        <div class="note">Las nueve restricciones duras del validador oficial. Una solución válida tiene todas a cero.</div></div>
+      <div class="card"><h3>Coste por componente (restricciones blandas)</h3><canvas id="chSoft" height="150"></canvas>
+        <div class="note">Desglose del coste de esta solución en los ocho componentes blandos.</div></div>
+    </div>
+    <div class="grid2b">
+      <div class="card"><h3>Carga por quirófano (minutos)</h3><canvas id="chOTdist" height="150"></canvas>
+        <div class="note">Minutos de cirugía asignados a cada quirófano durante todo el horizonte.</div></div>
+      <div class="card"><h3>Carga por cirujano (minutos)</h3><canvas id="chSurg" height="150"></canvas>
+        <div class="note">Minutos de cirugía asignados a cada cirujano.</div></div>
+    </div>
+    <div class="grid2b">
+      <div class="card"><h3>Ocupación por habitación (pacientes·día)</h3><canvas id="chRoom" height="150"></canvas>
+        <div class="note">Días-paciente acumulados en cada habitación.</div></div>
+      <div class="card"><h3>Pacientes programados por género y edad</h3><canvas id="chDemo" height="150"></canvas>
+        <div class="note">Reparto de los pacientes admitidos por género y por grupo de edad.</div></div>
+    </div>
   </div>
 
   <div class="panel" id="p-comparativa">
     <div class="kpis" id="compKpis"></div>
     <div class="grid2b">
-      <div class="card"><h3>Coste por componente: propuesta vs oficial (agregado)</h3>
+      <div class="card"><h3>Coste por componente: propuesta vs mejor resultado (agregado)</h3>
         <canvas id="chCompAgg" height="150"></canvas>
-        <div class="note">Suma de cada componente sobre las instancias con solución oficial. Revela en qué se concentra la brecha.</div></div>
-      <div class="card"><h3>Brecha por componente (propuesta − oficial)</h3>
+        <div class="note">Suma de cada componente sobre las instancias con solución de referencia. Revela en qué se concentra la brecha.</div></div>
+      <div class="card"><h3>Brecha por componente (propuesta − mejor resultado)</h3>
         <canvas id="chCompDelta" height="150"></canvas>
         <div class="note">Coste adicional de la propuesta en cada componente. Barras altas = cuello de botella.</div></div>
     </div>
-    <div class="card"><h3>Coste total por instancia: propuesta vs oficial</h3>
+    <div class="card"><h3>Coste total por instancia: propuesta vs mejor resultado</h3>
       <canvas id="chCompTot" height="110"></canvas></div>
-    <div class="card"><h3>Pacientes programados por instancia: propuesta vs oficial</h3>
+    <div class="card"><h3>Pacientes programados por instancia: propuesta vs mejor resultado</h3>
       <canvas id="chCompSched" height="110"></canvas>
-      <div class="note">Diferencia en pacientes admitidos: dónde el método oficial coloca opcionales que la propuesta descarta.</div></div>
+      <div class="note">Diferencia en pacientes admitidos: dónde el mejor resultado de la competición coloca opcionales que la propuesta descarta.</div></div>
     <div class="card"><h3>Detalle comparativo por instancia</h3>
       <div class="tablewrap"><table id="tablaComp"><thead></thead><tbody></tbody></table></div>
     </div>
 
     <div class="card">
       <div class="toolbar"><b>Explorar instancia:</b> <select id="selComp"></select>
-        <span class="pill">Estructura de la solución: propuesta vs oficial</span></div>
+        <span class="pill">Estructura de la solución: propuesta vs mejor resultado</span></div>
     </div>
     <div class="grid2b">
       <div class="card"><h3>Ocupación de camas por día</h3><canvas id="chCBed" height="150"></canvas>
@@ -471,7 +524,7 @@ PLANTILLA = r"""<!DOCTYPE html>
       <div class="note">Minutos de cirugía de cada solución frente a la capacidad diaria.</div></div>
     <div class="grid2b">
       <div class="card"><h3>Mapa de ocupación &mdash; Propuesta</h3><div class="hm" id="heatN"></div></div>
-      <div class="card"><h3>Mapa de ocupación &mdash; Oficial</h3><div class="hm" id="heatO"></div></div>
+      <div class="card"><h3>Mapa de ocupación &mdash; Mejor resultado</h3><div class="hm" id="heatO"></div></div>
     </div>
   </div>
 
@@ -513,7 +566,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
 (function(){
   const C=D.comparativa;
   let h=`<div class="hcard"><div class="hv">${k.sin_violaciones}</div><div class="hl">instancias sin violaciones</div></div>`;
-  h+=`<div class="hcard"><div class="hv">${k.gap_medio!=null?k.gap_medio+'%':'—'}</div><div class="hl">gap medio frente al óptimo oficial</div></div>`;
+  h+=`<div class="hcard"><div class="hv">${k.gap_medio!=null?k.gap_medio+'%':'—'}</div><div class="hl">gap medio frente al mejor resultado de la competición</div></div>`;
   h+=`<div class="hcard"><div class="hv">${k.dentro10}/${k.n_gap}</div><div class="hl">dentro del +10%</div></div>`;
   let lectura='La metodología propuesta resuelve las 30 instancias sin violaciones de '+
     'restricciones duras. ';
@@ -523,9 +576,9 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
     const top=[...C.agg].sort((a,b)=>b.delta-a.delta)[0];
     const brecha=sumN-sumO;
     const pctTop=Math.round(top.delta/brecha*100);
-    h+=`<div class="hcard"><div class="hv">+${sobre}%</div><div class="hl">sobrecoste agregado vs oficial</div></div>`;
+    h+=`<div class="hcard"><div class="hv">+${sobre}%</div><div class="hl">sobrecoste agregado vs mejor competición</div></div>`;
     h+=`<div class="hcard"><div class="hv">${top.label}</div><div class="hl">principal cuello de botella (${pctTop}% de la brecha)</div></div>`;
-    lectura+=`Frente a los mejores resultados oficiales, el sobrecoste agregado es del `+
+    lectura+=`Frente a los mejores resultados de la competición, el sobrecoste agregado es del `+
       `${sobre} %, concentrado sobre todo en <b>${top.label}</b> (${pctTop} % de la `+
       `diferencia total). El cuello de botella no está en la enfermería ni en los quirófanos, `+
       `sino en la fase de admisión: en programar más pacientes opcionales.`;
@@ -581,7 +634,8 @@ if (window.Chart) {
 })();
 
 // Explorador de solución
-let chBed,chAdm,chOT;
+let chBed,chAdm,chOT,chSoft,chOTdist,chSurg,chRoom,chDemo;
+const COMP_DEF=D.comp_def;  // [clave, etiqueta, color]
 function colorOcc(frac){ if(frac<=0)return '#ffffff'; const t=Math.min(1,frac);
   const r=Math.round(220-(220-46)*t),g=Math.round(235-(235-87)*t),b=Math.round(240-(240-156)*t);
   return `rgb(${r},${g},${b})`; }
@@ -637,6 +691,39 @@ function pintaSolucion(inst){
   });
   h+='</table>';
   document.getElementById('heatmap').innerHTML=h;
+
+  // ── Introspección: violaciones, costes y distribuciones ──────────
+  const viol=s.viol||{};
+  const filasV=Object.keys(viol).map(k=>{
+    const v=viol[k]; const ok=(v===0);
+    return `<tr><td>${k}</td><td style="text-align:right;color:${ok?'#2E9C57':'#C03030'};font-weight:600">${v}</td></tr>`;
+  }).join('');
+  document.querySelector('#tablaViol thead').innerHTML='<tr><th>Restricción dura</th><th style="text-align:right">Violaciones</th></tr>';
+  document.querySelector('#tablaViol tbody').innerHTML=filasV+
+    `<tr><td><b>Total</b></td><td style="text-align:right"><b>${s.total_viol!=null?s.total_viol:'—'}</b></td></tr>`;
+
+  if(window.Chart){
+    [chSoft,chOTdist,chSurg,chRoom,chDemo].forEach(c=>c&&c.destroy());
+    const cst=s.costes||{};
+    chSoft=new Chart(document.getElementById('chSoft'),{type:'bar',
+      data:{labels:COMP_DEF.map(d=>d[1]),datasets:[{data:COMP_DEF.map(d=>cst[d[0]]||0),
+        backgroundColor:COMP_DEF.map(d=>d[2])}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:45,minRotation:45}},y:{title:{display:true,text:'coste'}}}}});
+    chOTdist=new Chart(document.getElementById('chOTdist'),{type:'bar',
+      data:{labels:s.ot_dist_ids,datasets:[{data:s.ot_dist_min,backgroundColor:'#7030A0'}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{title:{display:true,text:'min'}}}}});
+    chSurg=new Chart(document.getElementById('chSurg'),{type:'bar',
+      data:{labels:s.surg_ids,datasets:[{data:s.surg_min,backgroundColor:'#2E579C'}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}}},y:{title:{display:true,text:'min'}}}}});
+    chRoom=new Chart(document.getElementById('chRoom'),{type:'bar',
+      data:{labels:s.room_ids,datasets:[{data:s.room_pd,backgroundColor:'#5B9BD5'}]},
+      options:{plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}},y:{title:{display:true,text:'pac·día'}}}}});
+    const gk=Object.keys(s.by_gender||{}), ak=Object.keys(s.by_age||{});
+    chDemo=new Chart(document.getElementById('chDemo'),{type:'bar',
+      data:{labels:gk.concat(ak),datasets:[{data:gk.map(k=>s.by_gender[k]).concat(ak.map(k=>s.by_age[k])),
+        backgroundColor:gk.map(()=>'#E0A030').concat(ak.map(()=>'#2E9C57'))}]},
+      options:{plugins:{legend:{display:false},title:{display:true,text:'género | grupo de edad',font:{size:10}}},scales:{y:{title:{display:true,text:'pacientes'}}}}});
+  }
 }
 const sel=document.getElementById('selInst');
 sel.innerHTML=insts.map(i=>`<option value="${i}">${i}</option>`).join('');
@@ -657,7 +744,7 @@ if(insts.length) pintaSolucion(insts[0]);
   document.getElementById('compKpis').innerHTML = [
     ['Instancias comparadas', C.n+'/30'],
     ['Coste total propuesta', fmt(sumN)],
-    ['Coste total oficial', fmt(sumO)],
+    ['Coste total (mejor comp.)', fmt(sumO)],
     ['Sobrecoste global', '+'+(sumO?Math.round((sumN-sumO)/sumO*100):0)+'%'],
     ['Mayor cuello de botella', peor?peor.label:'—'],
   ].map(([l,v])=>`<div class="kpi"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
@@ -666,7 +753,7 @@ if(insts.length) pintaSolucion(insts[0]);
     new Chart(document.getElementById('chCompAgg'),{type:'bar',
       data:{labels:C.agg.map(x=>x.label),datasets:[
         {label:'Propuesta',data:C.agg.map(x=>x.n),backgroundColor:'#2E579C'},
-        {label:'Oficial',data:C.agg.map(x=>x.o),backgroundColor:'#2E9C57'}]},
+        {label:'Mejor (competición)',data:C.agg.map(x=>x.o),backgroundColor:'#2E9C57'}]},
       options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:10}}}}}});
     new Chart(document.getElementById('chCompDelta'),{type:'bar',
       data:{labels:C.agg.map(x=>x.label),datasets:[{data:C.agg.map(x=>x.delta),
@@ -675,17 +762,17 @@ if(insts.length) pintaSolucion(insts[0]);
     new Chart(document.getElementById('chCompTot'),{type:'bar',
       data:{labels:labs,datasets:[
         {label:'Propuesta',data:ci.map(x=>x.propuesta),backgroundColor:'#2E579C'},
-        {label:'Oficial',data:ci.map(x=>x.oficial),backgroundColor:'#2E9C57'}]},
+        {label:'Mejor (competición)',data:ci.map(x=>x.oficial),backgroundColor:'#2E9C57'}]},
       options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
     new Chart(document.getElementById('chCompSched'),{type:'bar',
       data:{labels:labs,datasets:[
         {label:'Programados (propuesta)',data:ci.map(x=>x.sched_n),backgroundColor:'#2E579C'},
-        {label:'Programados (oficial)',data:ci.map(x=>x.sched_o),backgroundColor:'#2E9C57'}]},
+        {label:'Programados (mejor comp.)',data:ci.map(x=>x.sched_o),backgroundColor:'#2E9C57'}]},
       options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
   }
 
   document.querySelector('#tablaComp thead').innerHTML =
-    '<tr><th>Inst</th><th>Propuesta</th><th>Oficial</th><th>Δ</th><th>Δ %</th>'+
+    '<tr><th>Inst</th><th>Propuesta</th><th>Mejor comp.</th><th>Δ</th><th>Δ %</th>'+
     '<th>Prog. n/o</th><th>Descart. n/o</th></tr>';
   document.querySelector('#tablaComp tbody').innerHTML = ci.map(x=>
     `<tr><td>${x.inst}</td><td><b>${fmt(x.propuesta)}</b></td><td>${fmt(x.oficial)}</td>`+
@@ -693,7 +780,7 @@ if(insts.length) pintaSolucion(insts[0]);
     `<td><span class="badge ${banda(x.gap)}">${x.gap>0?'+':''}${x.gap}%</span></td>`+
     `<td>${x.sched_n} / ${x.sched_o}</td><td>${x.unsched_n} / ${x.unsched_o}</td></tr>`).join('');
 
-  // ── Explorador estructural: propuesta vs oficial ────────────────
+  // ── Explorador estructural: propuesta vs mejor resultado ────────────────
   const COL_N='#2E579C', COL_O='#2E9C57', COL_CAP='#C03030';
   let chCBed,chCAdm,chCOT;
   function pintaComp(inst){
@@ -705,18 +792,18 @@ if(insts.length) pintaSolucion(insts[0]);
       chCBed=new Chart(document.getElementById('chCBed'),{type:'line',
         data:{labels:dias,datasets:[
           {label:'Propuesta',data:sn.bed,borderColor:COL_N,backgroundColor:'rgba(46,87,156,.10)',fill:true,tension:.2},
-          {label:'Oficial',data:so.bed,borderColor:COL_O,backgroundColor:'rgba(46,156,87,.10)',fill:true,tension:.2},
+          {label:'Mejor (competición)',data:so.bed,borderColor:COL_O,backgroundColor:'rgba(46,156,87,.10)',fill:true,tension:.2},
           {label:'Capacidad',data:dias.map(()=>sn.total_beds),borderColor:COL_CAP,borderDash:[6,4],pointRadius:0}]},
         options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
       chCAdm=new Chart(document.getElementById('chCAdm'),{type:'bar',
         data:{labels:dias,datasets:[
           {label:'Propuesta',data:sn.adm,backgroundColor:COL_N},
-          {label:'Oficial',data:so.adm,backgroundColor:COL_O}]},
+          {label:'Mejor (competición)',data:so.adm,backgroundColor:COL_O}]},
         options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
       chCOT=new Chart(document.getElementById('chCOT'),{type:'bar',
         data:{labels:dias,datasets:[
           {label:'Propuesta',data:sn.ot_used,backgroundColor:COL_N},
-          {label:'Oficial',data:so.ot_used,backgroundColor:COL_O},
+          {label:'Mejor (competición)',data:so.ot_used,backgroundColor:COL_O},
           {label:'Capacidad',data:sn.ot_cap,type:'line',borderColor:COL_CAP,borderDash:[6,4],pointRadius:0}]},
         options:{plugins:{legend:{labels:{font:{size:11}}}},scales:{x:{title:{display:true,text:'día'}}}}});
     }
@@ -740,7 +827,7 @@ document.getElementById('ablNote').innerHTML=D.ablacion.real
     `<td class="${f.mejora>0?'pos':'neg'}">${f.mejora>0?'−':'+'}${Math.abs(f.mejora)}%</td></tr>`).join('');})();
 
 // Tabla resumen
-const cdef=[['inst','Inst'],['oficial','Oficial'],['obtenido','Obtenido'],['gap','Gap %'],['viol','Viol.'],
+const cdef=[['inst','Inst'],['oficial','Mejor comp.'],['obtenido','Obtenido'],['gap','Gap %'],['viol','Viol.'],
   ['unsched','Unsched.'],['delay','Delay'],['resto','Resto'],['tiempo','t (s)'],['poda','Podados']];
 let orden={col:'inst',asc:true};
 function pintar(){
