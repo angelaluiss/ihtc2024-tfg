@@ -507,6 +507,12 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="card"><h3>Pacientes programados por instancia: propuesta vs mejor resultado</h3>
       <canvas id="chCompSched" height="110"></canvas>
       <div class="note">Diferencia en pacientes admitidos: dónde el mejor resultado de la competición coloca opcionales que la propuesta descarta.</div></div>
+    <div class="card"><h3>Pacientes descartados por instancia: propuesta vs mejor resultado</h3>
+      <canvas id="chCompUns" height="110"></canvas>
+      <div class="note">Opcionales no programados en cada solución. Es el principal cuello de botella de la propuesta.</div></div>
+    <div class="card"><h3>Origen de la brecha por instancia (propuesta − mejor resultado)</h3>
+      <canvas id="chGapSplit" height="120"></canvas>
+      <div class="note">Descomposición del sobrecoste por instancia: barras positivas indican coste de más (cuello de botella); negativas, ventaja de la propuesta. Se separan los opcionales no programados, el retraso de admisión y el resto de componentes.</div></div>
     <div class="card"><h3>Detalle comparativo por instancia</h3>
       <div class="tablewrap"><table id="tablaComp"><thead></thead><tbody></tbody></table></div>
     </div>
@@ -769,6 +775,26 @@ if(insts.length) pintaSolucion(insts[0]);
         {label:'Programados (propuesta)',data:ci.map(x=>x.sched_n),backgroundColor:'#2E579C'},
         {label:'Programados (mejor comp.)',data:ci.map(x=>x.sched_o),backgroundColor:'#2E9C57'}]},
       options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
+
+    // Pacientes descartados por instancia (cuello de botella principal)
+    new Chart(document.getElementById('chCompUns'),{type:'bar',
+      data:{labels:labs,datasets:[
+        {label:'Descartados (propuesta)',data:ci.map(x=>x.unsched_n),backgroundColor:'#C03030'},
+        {label:'Descartados (mejor comp.)',data:ci.map(x=>x.unsched_o),backgroundColor:'#E0A030'}]},
+      options:{plugins:{legend:{position:'bottom'}},scales:{x:{ticks:{font:{size:9},maxRotation:90,minRotation:90}}}}});
+
+    // Origen de la brecha por instancia: Δ unscheduled, Δ delay, Δ resto (apilado)
+    const dU = ci.map(x=>(x.comps.unsched.n - x.comps.unsched.o));
+    const dD = ci.map(x=>(x.comps.delay.n   - x.comps.delay.o));
+    const dR = ci.map(x=>(x.delta - (x.comps.unsched.n-x.comps.unsched.o) - (x.comps.delay.n-x.comps.delay.o)));
+    new Chart(document.getElementById('chGapSplit'),{type:'bar',
+      data:{labels:labs,datasets:[
+        {label:'Δ Opcionales no programados',data:dU,backgroundColor:'#C03030'},
+        {label:'Δ Retraso de admisión',data:dD,backgroundColor:'#E0A030'},
+        {label:'Δ Resto de componentes',data:dR,backgroundColor:'#5B9BD5'}]},
+      options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}},
+        scales:{x:{stacked:true,ticks:{font:{size:9},maxRotation:90,minRotation:90}},
+                y:{stacked:true,title:{display:true,text:'Δ coste (propuesta − mejor)'}}}}});
   }
 
   document.querySelector('#tablaComp thead').innerHTML =
