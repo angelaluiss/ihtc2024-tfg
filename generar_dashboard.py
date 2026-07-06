@@ -391,7 +391,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="tab" data-p="costes">Costes por instancia</div>
     <div class="tab" data-p="instancias">Instancias</div>
     <div class="tab" data-p="solucion">Solución</div>
-    <div class="tab" data-p="comparativa">Comparativa: mejor resultado</div>
+    <div class="tab" data-p="comparativa">Comparativa con la competición</div>
     <div class="tab" data-p="ablacion">Ablación</div>
   </div>
 
@@ -411,7 +411,7 @@ PLANTILLA = r"""<!DOCTYPE html>
           <li><b>Costes por instancia:</b> desglose en los ocho componentes del validador.</li>
           <li><b>Instancias:</b> tamaño de cada caso y reparto de pacientes.</li>
           <li><b>Solución:</b> ocupación de camas, uso de quirófanos y mapa por habitación.</li>
-          <li><b>Comparativa con el mejor resultado:</b> propuesta frente al mejor resultado de la competición, componente a componente y estructura a estructura.</li>
+          <li><b>Comparativa con la competición:</b> propuesta frente al mejor resultado de la competición, componente a componente y estructura a estructura.</li>
           <li><b>Ablación:</b> aportación de la fase de readmisión al coste.</li>
         </ul>
       </div>
@@ -495,22 +495,22 @@ PLANTILLA = r"""<!DOCTYPE html>
   <div class="panel" id="p-comparativa">
     <div class="kpis" id="compKpis"></div>
     <div class="grid2b">
-      <div class="card"><h3>Coste por componente: propuesta vs mejor resultado (agregado)</h3>
+      <div class="card"><h3>Coste por componente: propuesta vs mejor resultado de la competición (agregado)</h3>
         <canvas id="chCompAgg" height="150"></canvas>
         <div class="note">Suma de cada componente sobre las instancias con solución de referencia. Revela en qué se concentra la brecha.</div></div>
-      <div class="card"><h3>Brecha por componente (propuesta − mejor resultado)</h3>
+      <div class="card"><h3>Brecha por componente (propuesta − mejor resultado de la competición)</h3>
         <canvas id="chCompDelta" height="150"></canvas>
         <div class="note">Coste adicional de la propuesta en cada componente. Barras altas = cuello de botella.</div></div>
     </div>
-    <div class="card"><h3>Coste total por instancia: propuesta vs mejor resultado</h3>
+    <div class="card"><h3>Coste total por instancia: propuesta vs mejor resultado de la competición</h3>
       <canvas id="chCompTot" height="110"></canvas></div>
-    <div class="card"><h3>Pacientes programados por instancia: propuesta vs mejor resultado</h3>
+    <div class="card"><h3>Pacientes programados por instancia: propuesta vs mejor resultado de la competición</h3>
       <canvas id="chCompSched" height="110"></canvas>
       <div class="note">Diferencia en pacientes admitidos: dónde el mejor resultado de la competición coloca opcionales que la propuesta descarta.</div></div>
-    <div class="card"><h3>Pacientes descartados por instancia: propuesta vs mejor resultado</h3>
+    <div class="card"><h3>Pacientes descartados por instancia: propuesta vs mejor resultado de la competición</h3>
       <canvas id="chCompUns" height="110"></canvas>
       <div class="note">Opcionales no programados en cada solución. Es el principal cuello de botella de la propuesta.</div></div>
-    <div class="card"><h3>Origen de la brecha por instancia (propuesta − mejor resultado)</h3>
+    <div class="card"><h3>Origen de la brecha por instancia (propuesta − mejor resultado de la competición)</h3>
       <canvas id="chGapSplit" height="120"></canvas>
       <div class="note">Descomposición del sobrecoste por instancia: barras positivas indican coste de más (cuello de botella); negativas, ventaja de la propuesta. Se separan los opcionales no programados, el retraso de admisión y el resto de componentes.</div></div>
     <div class="card"><h3>Detalle comparativo por instancia</h3>
@@ -519,7 +519,7 @@ PLANTILLA = r"""<!DOCTYPE html>
 
     <div class="card">
       <div class="toolbar"><b>Explorar instancia:</b> <select id="selComp"></select>
-        <span class="pill">Estructura de la solución: propuesta vs mejor resultado</span></div>
+        <span class="pill">Estructura de la solución: propuesta vs mejor resultado de la competición</span></div>
     </div>
     <div class="grid2b">
       <div class="card"><h3>Ocupación de camas por día</h3><canvas id="chCBed" height="150"></canvas>
@@ -530,7 +530,7 @@ PLANTILLA = r"""<!DOCTYPE html>
       <div class="note">Minutos de cirugía de cada solución frente a la capacidad diaria.</div></div>
     <div class="grid2b">
       <div class="card"><h3>Mapa de ocupación &mdash; Propuesta</h3><div class="hm" id="heatN"></div></div>
-      <div class="card"><h3>Mapa de ocupación &mdash; Mejor resultado</h3><div class="hm" id="heatO"></div></div>
+      <div class="card"><h3>Mapa de ocupación &mdash; Mejor resultado de la competición</h3><div class="hm" id="heatO"></div></div>
     </div>
   </div>
 
@@ -794,7 +794,7 @@ if(insts.length) pintaSolucion(insts[0]);
         {label:'Δ Resto de componentes',data:dR,backgroundColor:'#5B9BD5'}]},
       options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}},
         scales:{x:{stacked:true,ticks:{font:{size:9},maxRotation:90,minRotation:90}},
-                y:{stacked:true,title:{display:true,text:'Δ coste (propuesta − mejor)'}}}}});
+                y:{stacked:true,title:{display:true,text:'Δ coste (propuesta − mejor comp.)'}}}}});
   }
 
   document.querySelector('#tablaComp thead').innerHTML =
@@ -806,7 +806,7 @@ if(insts.length) pintaSolucion(insts[0]);
     `<td><span class="badge ${banda(x.gap)}">${x.gap>0?'+':''}${x.gap}%</span></td>`+
     `<td>${x.sched_n} / ${x.sched_o}</td><td>${x.unsched_n} / ${x.unsched_o}</td></tr>`).join('');
 
-  // ── Explorador estructural: propuesta vs mejor resultado ────────────────
+  // ── Explorador estructural: propuesta vs mejor resultado de la competición ──
   const COL_N='#2E579C', COL_O='#2E9C57', COL_CAP='#C03030';
   let chCBed,chCAdm,chCOT;
   function pintaComp(inst){
