@@ -1,0 +1,43 @@
+{
+    "instancia": "i23",
+    "timestamp": "2026-06-08T16:03:40",
+    "threads": 4,
+    "mip_gap": 0.02,
+    "estado": "OK",
+    "error": null,
+    "tiempos": {
+        "fase1": 13.2,
+        "fase2": 116.6,
+        "fase3": 23.1,
+        "total": 153.0
+    },
+    "metricas": {
+        "pacientes_f1": 380,
+        "pacientes_f2": 380,
+        "uncovered_room": 0,
+        "room_skill_level_raw": 29.0,
+        "excessive_nurse_workload_raw": 2189.0,
+        "continuity_of_care_raw": 2114,
+        "score_interno": 13049.0
+    },
+    "total_violations": 0,
+    "total_cost": 45848,
+    "cost_RoomAgeMix": 333,
+    "cost_RoomSkillLevel": 290,
+    "cost_ContinuityOfCare": 10570,
+    "cost_ExcessiveNurseWorkload": 2189,
+    "cost_OpenOperatingTheater": 770,
+    "cost_SurgeonTransfer": 11,
+    "cost_PatientDelay": 22485,
+    "cost_ElectiveUnscheduledPatients": 9200,
+    "viol_RoomGenderMix": 0,
+    "viol_PatientRoomCompatibility": 0,
+    "viol_SurgeonOvertime": 0,
+    "viol_OperatingTheaterOvertime": 0,
+    "viol_MandatoryUnscheduledPatients": 0,
+    "viol_AdmissionDay": 0,
+    "viol_RoomCapacity": 0,
+    "viol_NursePresence": 0,
+    "viol_UncoveredRoom": 0,
+    "validador_parsed": {}
+}

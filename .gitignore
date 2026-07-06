@@ -1,4 +1,16 @@
-# Python
+# =============================================================
+#  .gitignore - repositorio del TFG (IHTC 2024)
+#
+#  Politica de versionado:
+#   - SI se versiona: codigo fuente, resultados PROCESADOS y sus CSV,
+#     figuras y documentacion de la memoria.
+#   - NO se versiona: datos de terceros (instancias, validador y
+#     soluciones oficiales de la competicion) -> se REFERENCIAN en el
+#     README; ni las salidas INTERMEDIAS, que se regeneran ejecutando
+#     los scripts.
+# =============================================================
+
+# --- Entorno de Python -------------------------------------
 __pycache__/
 *.py[cod]
 *.pyo
@@ -6,54 +18,65 @@ __pycache__/
 .venv/
 venv/
 env/
-
-# Jupyter
 .ipynb_checkpoints/
 
-# Resultados y salidas generadas (se regeneran con los scripts)
-resultados_*/
-/resultados/
+# --- Datos de terceros: se REFERENCIAN, no se suben (ver README) ---
+instancias/                 # instancias oficiales IHTC 2024
+instances/
+soluciones_oficiales/       # soluciones publicadas por la competicion
+test*.json                  # instancias de prueba usadas en desarrollo
+data/*
+!data/.gitkeep
+
+# --- Validador oficial: se referencia, no se sube (ver README) ---
+IHTP_Validator.cc
+IHTP_Validator.exe
+json.hpp
+validador
+*.exe
+*.dll
+
+# --- Resultados INTERMEDIOS (se regeneran al ejecutar): NO se suben ---
+resultados/
+resultados_rapido/
+resultados_competicion/
+resultados_competicion_ihtc/
 results/*
 !results/.gitkeep
-diagnostico_admisiones/
-diagnostico_cirujanos_opcionales/
+
+# --- Diagnosticos: solo se suben los CSV (la fuente de los datos) ---
+diagnostico_admisiones/*
+!diagnostico_admisiones/*.csv
+diagnostico_cirujanos_opcionales/*
+!diagnostico_cirujanos_opcionales/*.csv
+
+# --- Salidas sueltas de desarrollo en la raiz --------------
+solucion_*.json
+mejor_solucion*.json
+estadisticas_*.json
+feedback_*.json
+validator_*.json
 *.log
 *.lp
 *.ilp
 *.mps
 *.sol
 
-# Soluciones y estadísticas generadas
-solucion_*.json
-mejor_solucion*.json
-estadisticas_*.json
-resumen_*.json
-resumen_*.csv
-validator_*.json
-feedback_*.json
-
-# Datos e instancias (públicas, disponibles en la web del IHTC 2024)
-data/*
-!data/.gitkeep
-instancias/
-instances/
-
-# Artículos / bibliografía (pesados, no son código)
-artículos/
-
-# Ejecutables y binarios
-*.exe
-*.dll
-
-# Backups y temporales de edición
+# --- Copias/versiones antiguas y temporales de edicion -----
+src/                        # copias stale; el codigo vive en la raiz
+diagnosticos/               # copias stale de los scripts de diagnostico
 *.bak
 *.bak_pre_fix
 *_backup.py
+Nuevo Documento de texto.txt
 
-# Configuración local de herramientas (no forma parte del proyecto)
+# --- Configuracion local de herramientas -------------------
 .claude/
 
-# Sistema
+# --- Articulos / bibliografia (pesados, no son codigo) -----
+artículos/
+
+# --- Sistema -----------------------------------------------
 .DS_Store
 Thumbs.db
 desktop.ini

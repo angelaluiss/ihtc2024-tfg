@@ -1,0 +1,16 @@
+{
+    "instancia": "i16",
+    "timestamp": "2026-06-08T15:23:13",
+    "threads": 4,
+    "mip_gap": 0.02,
+    "estado": "INFACTIBLE_FASE2",
+    "error": null,
+    "tiempos": {
+        "fase1": 6.3,
+        "fase2": 183.6
+    },
+    "metricas": {
+        "pacientes_f1": 146
+    },
+    "validador_parsed": {}
+}

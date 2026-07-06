@@ -1,0 +1,2 @@
+surgeon,scheduled_patients,unscheduled_optional_patients,unscheduled_optional_ids,total_capacity_horizon,used_minutes_solution,residual_minutes_solution,unscheduled_optional_minutes,residual_minus_unscheduled_minutes
+s0,34,8,"p07,p08,p09,p14,p17,p23,p34,p38",5280,5250,30,1980,-1950

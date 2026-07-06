@@ -1,0 +1,11 @@
+scenario;status;sol_count;unscheduled_optional;scheduled_patients;raw_delay;open_proxy;phase2_ok;validator_total_violations;validator_total_cost;validator_ElectiveUnscheduledPatients;validator_PatientDelay;validator_OpenOperatingTheater;validator_RoomAgeMix;validator_UncoveredRoom;notes;solution_path
+00_modelo_actual_completo;2;9;8;34;92;11;VERDADERO;252;2095;1200;460;330;105;252;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\00_modelo_actual_completo\solucion_fase1.json
+01_sin_hall_quirofanos;2;9;8;34;92;11;VERDADERO;252;2095;1200;460;330;105;252;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\01_sin_hall_quirofanos\solucion_fase1.json
+02_sin_hall_habitaciones;2;9;8;34;92;11;VERDADERO;252;2095;1200;460;330;105;252;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\02_sin_hall_habitaciones\solucion_fase1.json
+03_sin_capacidad_genero;2;10;8;34;92;11;VERDADERO;267;2075;1200;460;330;85;267;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\03_sin_capacidad_genero\solucion_fase1.json
+04_sin_hall_habitaciones_ni_genero;2;10;8;34;92;11;VERDADERO;267;2075;1200;460;330;85;267;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\04_sin_hall_habitaciones_ni_genero\solucion_fase1.json
+05_sin_anticipacion_camas;2;10;8;34;92;11;FALSO;;;;;;;;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\05_sin_anticipacion_camas\solucion_fase1.json
+06_solo_quirofanos_y_cirujanos;2;10;8;34;92;11;FALSO;;;;;;;;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\06_solo_quirofanos_y_cirujanos\solucion_fase1.json
+07_sin_capacidad_cirujanos;2;10;0;42;67;14;FALSO;;;;;;;;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\07_sin_capacidad_cirujanos\solucion_fase1.json
+08_sin_capacidad_total_quirofanos;2;10;8;34;92;;VERDADERO;267;2494;1200;460;330;80;267;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\08_sin_capacidad_total_quirofanos\solucion_fase1.json
+09_solo_ventanas;2;1;0;42;0;;FALSO;;;;;;;;;C:\Users\angel\OneDrive\Escritorio\tfg\diagnostico_admisiones\09_solo_ventanas\solucion_fase1.json

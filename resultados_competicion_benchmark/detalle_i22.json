@@ -1,0 +1,16 @@
+{
+    "instancia": "i22",
+    "timestamp": "2026-06-08T15:55:25",
+    "threads": 4,
+    "mip_gap": 0.02,
+    "estado": "INFACTIBLE_FASE2",
+    "error": null,
+    "tiempos": {
+        "fase1": 181.3,
+        "fase2": 313.9
+    },
+    "metricas": {
+        "pacientes_f1": 354
+    },
+    "validador_parsed": {}
+}

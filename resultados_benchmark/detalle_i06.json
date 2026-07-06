@@ -1,0 +1,103 @@
+{
+    "instancia": "i06",
+    "timestamp": "2026-06-06T15:51:09",
+    "tiempo_total_presupuesto": 600.0,
+    "gurobi_threads": 1,
+    "mip_gap": 0.02,
+    "estado": "OK",
+    "error": null,
+    "tiempos": {
+        "fase1": 0.46,
+        "fase2": 1.08,
+        "fase3": 3.48,
+        "total_real": 5.03
+    },
+    "metricas_internas": {
+        "pacientes_programados_f1": 38,
+        "pacientes_programados_f2": 38,
+        "pacientes_sin_quirofano": 0,
+        "uncovered_room": 0,
+        "room_skill_level_raw": 55.0,
+        "excessive_nurse_workload_raw": 0.0,
+        "continuity_of_care_raw": 250,
+        "score_interno": 305.0
+    },
+    "total_violations": 0,
+    "total_cost": 10758,
+    "cost_RoomAgeMix": 28,
+    "cost_RoomSkillLevel": 55,
+    "cost_ContinuityOfCare": 250,
+    "cost_ExcessiveNurseWorkload": 0,
+    "cost_OpenOperatingTheater": 240,
+    "cost_SurgeonTransfer": 0,
+    "cost_PatientDelay": 135,
+    "cost_ElectiveUnscheduledPatients": 10050,
+    "viol_RoomGenderMix": 0,
+    "viol_PatientRoomCompatibility": 0,
+    "viol_SurgeonOvertime": 0,
+    "viol_OperatingTheaterOvertime": 0,
+    "viol_MandatoryUnscheduledPatients": 0,
+    "viol_AdmissionDay": 0,
+    "viol_RoomCapacity": 0,
+    "viol_NursePresence": 0,
+    "viol_UncoveredRoom": 0,
+    "BKS": 1133,
+    "gap_vs_BKS_pct": 849.51,
+    "validador_parsed": {
+        "violations": {
+            "RoomGenderMix": 0,
+            "PatientRoomCompatibility": 0,
+            "SurgeonOvertime": 0,
+            "OperatingTheaterOvertime": 0,
+            "MandatoryUnscheduledPatients": 0,
+            "AdmissionDay": 0,
+            "RoomCapacity": 0,
+            "NursePresence": 0,
+            "UncoveredRoom": 0
+        },
+        "costs": {
+            "RoomAgeMix": {
+                "weighted_cost": 28,
+                "weight": 1,
+                "raw_cost": 28
+            },
+            "RoomSkillLevel": {
+                "weighted_cost": 55,
+                "weight": 1,
+                "raw_cost": 55
+            },
+            "ContinuityOfCare": {
+                "weighted_cost": 250,
+                "weight": 1,
+                "raw_cost": 250
+            },
+            "ExcessiveNurseWorkload": {
+                "weighted_cost": 0,
+                "weight": 5,
+                "raw_cost": 0
+            },
+            "OpenOperatingTheater": {
+                "weighted_cost": 240,
+                "weight": 20,
+                "raw_cost": 12
+            },
+            "SurgeonTransfer": {
+                "weighted_cost": 0,
+                "weight": 10,
+                "raw_cost": 0
+            },
+            "PatientDelay": {
+                "weighted_cost": 135,
+                "weight": 5,
+                "raw_cost": 27
+            },
+            "ElectiveUnscheduledPatients": {
+                "weighted_cost": 10050,
+                "weight": 150,
+                "raw_cost": 67
+            }
+        },
+        "total_violations": 0,
+        "total_cost": 10758
+    }
+}

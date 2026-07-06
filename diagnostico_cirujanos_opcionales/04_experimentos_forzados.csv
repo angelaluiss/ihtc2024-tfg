@@ -1,0 +1,9 @@
+forced_patient,status,sol_count,admission_feasible,forced_day,unscheduled_optional,scheduled_patients,raw_delay,phase2_ok,validator_total_cost,validator_total_violations,validator_ElectiveUnscheduledPatients,validator_PatientDelay,validator_OpenOperatingTheater,validator_SurgeonTransfer,validator_RoomAgeMix,validator_UncoveredRoom,new_unscheduled_optionals,dropped_optionals_relative_to_base,recovered_optionals_relative_to_base,notes
+p07,2,10,True,14,8,34,98,True,2587,264,1200,490,330,0,120,264,"p08,p09,p11,p14,p17,p23,p34,p38",p11,p07,
+p08,2,10,True,14,8,34,99,True,2595,258,1200,495,330,0,135,258,"p05,p07,p09,p13,p17,p23,p34,p38","p05,p13","p08,p14",
+p09,2,10,True,19,8,34,99,True,2560,258,1200,495,330,0,110,258,"p05,p07,p08,p11,p17,p23,p34,p38","p05,p11","p09,p14",
+p14,2,9,True,1,8,34,92,True,155763104,255,1200,460,330,0,110,255,"p05,p07,p08,p09,p17,p23,p34,p38",p05,p14,
+p17,2,10,True,8,8,34,99,True,2135,264,1200,495,330,0,110,264,"p05,p07,p08,p09,p13,p23,p34,p38","p05,p13","p14,p17",
+p23,2,8,True,17,8,34,104,False,,,,,,,,,"p07,p08,p09,p11,p13,p17,p34,p38","p11,p13","p14,p23",
+p34,2,9,True,16,8,34,97,True,2145,273,1200,485,330,0,130,273,"p07,p08,p09,p11,p13,p17,p23,p38","p11,p13","p14,p34",
+p38,2,10,True,14,8,34,93,True,2065,255,1200,465,330,0,70,255,"p07,p08,p09,p11,p14,p17,p23,p34",p11,p38,

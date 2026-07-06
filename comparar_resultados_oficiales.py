@@ -6,7 +6,7 @@ CSV_SALIDA = Path("resultados_pipeline_completo") / "comparacion_oficial.csv"
 
 # Mejores costes publicados para el conjunto público i01--i30.
 # Fuente: página oficial de IHTC 2024, sección Results.
-COSTES_OFICIALES = {
+COSTES_COMPETICION = {
     "i01": 3842,
     "i02": 1264,
     "i03": 10490,
@@ -47,28 +47,28 @@ df["instancia"] = (
     .str.replace(".json", "", regex=False)
 )
 
-df["coste_oficial"] = df["instancia"].map(COSTES_OFICIALES)
+df["mejor_competicion"] = df["instancia"].map(COSTES_COMPETICION)
 df["coste_obtenido"] = pd.to_numeric(df["final_total_cost"], errors="coerce")
 df["violaciones"] = pd.to_numeric(df["final_total_violations"], errors="coerce")
 df["factible"] = df["violaciones"].eq(0)
 
-df["gap_absoluto"] = df["coste_obtenido"] - df["coste_oficial"]
+df["gap_absoluto"] = df["coste_obtenido"] - df["mejor_competicion"]
 
 df["gap_relativo_%"] = (
-    (df["coste_obtenido"] - df["coste_oficial"])
-    / df["coste_oficial"]
+    (df["coste_obtenido"] - df["mejor_competicion"])
+    / df["mejor_competicion"]
     * 100
 )
 
-# Si no es factible o no hay coste oficial, no mostramos gap.
+# Si no es factible o no hay coste de la competición, no mostramos gap.
 df.loc[~df["factible"], ["gap_absoluto", "gap_relativo_%"]] = None
-df.loc[df["coste_oficial"].isna(), ["gap_absoluto", "gap_relativo_%"]] = None
+df.loc[df["mejor_competicion"].isna(), ["gap_absoluto", "gap_relativo_%"]] = None
 
 columnas = [
     "instancia",
     "factible",
     "violaciones",
-    "coste_oficial",
+    "mejor_competicion",
     "coste_obtenido",
     "gap_absoluto",
     "gap_relativo_%",
@@ -87,7 +87,7 @@ columnas = [
 comparacion = df[columnas].sort_values("instancia")
 comparacion.to_csv(CSV_SALIDA, index=False, encoding="utf-8-sig")
 
-print("\nCOMPARACIÓN CON RESULTADOS OFICIALES")
+print("\nCOMPARACIÓN CON MEJORES RESULTADOS DE LA COMPETICIÓN")
 print("=" * 80)
 print(
     comparacion[
@@ -95,7 +95,7 @@ print(
             "instancia",
             "factible",
             "violaciones",
-            "coste_oficial",
+            "mejor_competicion",
             "coste_obtenido",
             "gap_relativo_%",
             "best_seed_fase3",
@@ -105,7 +105,7 @@ print(
 
 validas = comparacion[
     comparacion["factible"]
-    & comparacion["coste_oficial"].notna()
+    & comparacion["mejor_competicion"].notna()
     & comparacion["coste_obtenido"].notna()
 ]
 
