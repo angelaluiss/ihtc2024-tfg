@@ -21,10 +21,13 @@ env/
 .ipynb_checkpoints/
 
 # --- Datos de terceros: se REFERENCIAN, no se suben (ver README) ---
-instancias/                 # instancias oficiales IHTC 2024
+# instancias oficiales IHTC 2024
+instancias/
 instances/
-soluciones_oficiales/       # soluciones publicadas por la competicion
-test*.json                  # instancias de prueba usadas en desarrollo
+# soluciones publicadas por la competicion
+soluciones_oficiales/
+# instancias de prueba usadas en desarrollo
+test*.json
 data/*
 !data/.gitkeep
 
@@ -63,12 +66,15 @@ validator_*.json
 *.sol
 
 # --- Copias/versiones antiguas y temporales de edicion -----
-src/                        # copias stale; el codigo vive en la raiz
-diagnosticos/               # copias stale de los scripts de diagnostico
+# copias stale; el codigo vive en la raiz
+src/
+diagnosticos/
 *.bak
 *.bak_pre_fix
 *_backup.py
 Nuevo Documento de texto.txt
+_tfg_texto.txt
+Analisis_implementacion_TFG.docx
 
 # --- Configuracion local de herramientas -------------------
 .claude/
