@@ -49,8 +49,10 @@ autosuficiente y reproducible.
 ├── benchmark_ihtc2024.py               # evaluación sistemática i01–i30
 ├── procesar_soluciones_oficiales.py    # valida las soluciones oficiales y genera su desglose
 ├── generar_dashboard.py                # genera el cuadro de mandos (dashboard.html)
+├── diagnostico_admisiones.py           # análisis de admisiones -> CSV de diagnóstico
+├── diagnostico_cirujanos_opcionales.py # análisis de quirófanos -> CSV de diagnóstico
 ├── figura_*.py / figuras_*.py          # figuras de la memoria
-├── comparacion_*.py                    # informes de comparación (CSV/Word)
+├── comparacion_memoria.py              # informe de comparación (Markdown/CSV)
 │
 ├── resultados_rapido_benchmark/        # RESULTADOS procesados (condiciones ampliadas)
 ├── resultados_competicion_benchmark/   # RESULTADOS procesados (reglas de competición)

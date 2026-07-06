@@ -76,6 +76,21 @@ Nuevo Documento de texto.txt
 _tfg_texto.txt
 Analisis_implementacion_TFG.docx
 
+# --- Scripts auxiliares NO documentados en el README -------
+# generadores de informes .docx, orquestadores de experimentos y la app Dash;
+# se conservan en local pero no forman parte de la estructura del repositorio.
+ablacion_tabla_docx.py
+comparacion_memoria_docx.py
+comparacion_vs_competicion_docx.py
+comparar_resultados_oficiales.py
+app_dashboard_tfg.py
+ejecutar_experimentos_ihtc.py
+ejecutar_experimentos_ihtc_competicion.py
+experimentos_pipeline_completo.py
+experimentos_semillas_fase3.py
+ejecutar_ablacion_sin_readmision.py
+regenerar_informe.py
+
 # --- Configuracion local de herramientas -------------------
 .claude/
 
