@@ -392,7 +392,7 @@ PLANTILLA = r"""<!DOCTYPE html>
     <div class="tab" data-p="instancias">Instancias</div>
     <div class="tab" data-p="solucion">Solución</div>
     <div class="tab" data-p="comparativa">Comparativa con la competición</div>
-    <div class="tab" data-p="ablacion">Ablación</div>
+    <div class="tab" data-p="ablacion">Estudio de ablación</div>
   </div>
 
   <div class="panel active" id="p-inicio">
